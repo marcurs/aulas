@@ -1,24 +1,15 @@
-# --- General ---
+# Dependencias
 node_modules/
+
+# Backend (api)
+api/.env
+api/components/Archive/
+
+# Frontend (apps) - Nota la "s"
+apps/dist/
+apps/.env
+apps/.env.local
+
+# Sistema
 .DS_Store
 *.log
-.eslintcache
-
-# --- Backend (api) ---
-api/node_modules/
-api/.env
-api/dist/
-api/npm-debug.log*
-
-# --- Frontend (app) ---
-app/node_modules/
-app/.env
-app/.env.local
-app/build/
-app/dist/
-app/.next/
-app/out/
-
-# --- Otros (Opcional) ---
-.vscode/
-.idea/

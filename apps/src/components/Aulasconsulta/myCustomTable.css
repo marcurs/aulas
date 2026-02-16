@@ -1,0 +1,22 @@
+/* Quitar bordes y padding en encabezados y celdas */
+.no-borders-no-padding .ant-table-thead > tr > th,
+.no-borders-no-padding .ant-table-tbody > tr > td {
+  /* border: none !important; */
+  padding: 0.5!important;
+}
+
+.my-custom-table .ant-table-thead > tr > th {
+  background-color: #b3d5f5; /* el color que desees */
+  font-size: 18px;    /* Tamaño de letra */
+  font-weight: bold;  /* Negritas */
+}
+
+.my-custom-table .ant-table {
+  border: 2px solid black !important; /* Borde grueso para el contenedor */
+}
+
+/* .my-custom-table .ant-table-thead > tr > th,
+.my-custom-table .ant-table-tbody > tr > td {
+  border: 1px solid black !important;
+} */
+
