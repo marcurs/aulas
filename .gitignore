@@ -1,0 +1,24 @@
+# --- General ---
+node_modules/
+.DS_Store
+*.log
+.eslintcache
+
+# --- Backend (api) ---
+api/node_modules/
+api/.env
+api/dist/
+api/npm-debug.log*
+
+# --- Frontend (app) ---
+app/node_modules/
+app/.env
+app/.env.local
+app/build/
+app/dist/
+app/.next/
+app/out/
+
+# --- Otros (Opcional) ---
+.vscode/
+.idea/
