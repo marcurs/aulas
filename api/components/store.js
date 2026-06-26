@@ -19,6 +19,18 @@ function getAulas() {
   });
 }
 
+function getEdificios() {
+  return new Promise((resolve, reject) => {
+    const sql = `SELECT cveedif, nombre, ubic FROM edificio ORDER BY cveedif`;
+    db.query(sql, (err, result) => {
+      if (err) reject(err);
+      resolve(result);
+    });
+  }).catch((err) => {
+    throw new Error(err);
+  });
+}
+
 function getPlaneacionSemana(dias) {
   if (!Array.isArray(dias) || dias.length === 0) {
     console.error(
@@ -219,6 +231,13 @@ async function updateObservacionBatch({
   return "OK";
 }
 
+async function updateAulasOrden(aulas) {
+  for (const { cveaula, pos } of aulas) {
+    await query(`UPDATE aula SET pos = ? WHERE cveaula = ?`, [pos, cveaula]);
+  }
+  return "OK";
+}
+
 function insertAula({ cveaula, cveedif, nombre, capaci, disp, pos }) {
   return new Promise((resolve, reject) => {
     const sql = `INSERT INTO aula (cveaula, cveedif, nombre, capaci, disp, pos) VALUES (?, ?, ?, ?, ?, ?)`;
@@ -248,12 +267,14 @@ function updateAula({ cveaula, nombre, capaci }) {
 
 module.exports = {
   getAulas,
+  getEdificios,
   getPlaneacionSemana,
   insertCursoSemana,
   updateCursoSemana,
   deleteCursoSemana,
   marcarNoObservado,
   updateObservacionBatch,
+  updateAulasOrden,
   insertAula,
   updateAula,
 };

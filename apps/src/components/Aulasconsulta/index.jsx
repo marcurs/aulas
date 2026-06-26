@@ -1,6 +1,15 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Table, Button } from "antd";
-import { EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined, HolderOutlined } from "@ant-design/icons";
+import { DndContext, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { ModalEditarAula } from "../Modals/ModalEditarAula";
 import { ModalAltaAula } from "../Modals/ModalAltaAula";
 import AppContext from "../../context/AppContext";
@@ -12,9 +21,47 @@ import "./myCustomTable.css";
 
 /* eslint-disable react/display-name */
 
+const DraggableRow = ({ children, ...props }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: props["data-row-key"] });
+
+  const style = {
+    ...props.style,
+    transform: CSS.Translate.toString(transform),
+    transition,
+    ...(isDragging ? { position: "relative", zIndex: 9999 } : {}),
+  };
+
+  return (
+    <tr {...props} ref={setNodeRef} style={style} {...attributes}>
+      {React.Children.map(children, (child) => {
+        if (child && child.key === "sort") {
+          return React.cloneElement(child, {
+            children: (
+              <HolderOutlined
+                ref={setActivatorNodeRef}
+                style={{ touchAction: "none", cursor: "grab" }}
+                {...listeners}
+              />
+            ),
+          });
+        }
+        return child;
+      })}
+    </tr>
+  );
+};
+
 function Aulasconsulta() {
   const [plansemana, setPlansemana] = useState([]);
-  const { get } = useApiREST();
+  const { get, post } = useApiREST();
   const { refreshpage, onRefreshPage, fechabusqueda, token } =
     useContext(AppContext);
 
@@ -29,6 +76,10 @@ function Aulasconsulta() {
   const [showModalEditarAula, setShowModalEditarAula] = useState(false);
   const [aulaSeleccionada, setAulaSeleccionada] = useState(null);
   const [showModalAltaAula, setShowModalAltaAula] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  );
 
   useEffect(() => {
     if (refreshpage) {
@@ -52,7 +103,39 @@ function Aulasconsulta() {
     }
   }, [refreshpage]);
 
+  const onDragEnd = async ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = plansemana.findIndex((r) => r.cveaula === active.id);
+    const newIndex = plansemana.findIndex((r) => r.cveaula === over.id);
+    const newOrder = arrayMove(plansemana, oldIndex, newIndex);
+
+    setPlansemana(newOrder);
+
+    const ordenActualizado = newOrder.map((aula, idx) => ({
+      cveaula: aula.cveaula,
+      pos: idx + 1,
+    }));
+
+    await post(
+      `${configJSON.API_URL}:${configJSON.PORT}/updateaulasorden`,
+      ordenActualizado,
+    );
+  };
+
+  const sortColumn = token
+    ? [
+        {
+          key: "sort",
+          align: "center",
+          width: 40,
+          onCell: () => ({ style: { backgroundColor: "#b3d5f5" } }),
+        },
+      ]
+    : [];
+
   const columns = [
+    ...sortColumn,
     {
       title: (
         <div style={{ textAlign: "center" }}>
@@ -74,7 +157,7 @@ function Aulasconsulta() {
       width: 300,
       align: "center",
       onCell: () => ({
-        style: { backgroundColor: "#b3d5f5" }, // color de fondo para toda la celda
+        style: { backgroundColor: "#b3d5f5" },
       }),
       render: (text, record) => (
         <div>
@@ -125,9 +208,9 @@ function Aulasconsulta() {
       align: "center",
       onCell: () => ({
         style: {
-          padding: 1, // Quita el padding interno
-          height: "100%", // Permite ocupar toda la altura disponible
-          verticalAlign: "middle", // Alinea el contenido arriba (o 'middle', 'bottom')
+          padding: 1,
+          height: "100%",
+          verticalAlign: "middle",
         },
       }),
       render: (text, record) => (
@@ -147,9 +230,9 @@ function Aulasconsulta() {
       align: "center",
       onCell: () => ({
         style: {
-          padding: 1, // Quita el padding interno
-          height: "100%", // Permite ocupar toda la altura disponible
-          verticalAlign: "middle", // Alinea el contenido arriba (o 'middle', 'bottom')
+          padding: 1,
+          height: "100%",
+          verticalAlign: "middle",
         },
       }),
       render: (text, record) => (
@@ -169,9 +252,9 @@ function Aulasconsulta() {
       align: "center",
       onCell: () => ({
         style: {
-          padding: 1, // Quita el padding interno
-          height: "100%", // Permite ocupar toda la altura disponible
-          verticalAlign: "middle", // Alinea el contenido arriba (o 'middle', 'bottom')
+          padding: 1,
+          height: "100%",
+          verticalAlign: "middle",
         },
       }),
       render: (text, record) => (
@@ -191,9 +274,9 @@ function Aulasconsulta() {
       align: "center",
       onCell: () => ({
         style: {
-          padding: 1, // Quita el padding interno
-          height: "100%", // Permite ocupar toda la altura disponible
-          verticalAlign: "middle", // Alinea el contenido arriba (o 'middle', 'bottom')
+          padding: 1,
+          height: "100%",
+          verticalAlign: "middle",
         },
       }),
       render: (text, record) => (
@@ -213,9 +296,9 @@ function Aulasconsulta() {
       align: "center",
       onCell: () => ({
         style: {
-          padding: 1, // Quita el padding interno
-          height: "100%", // Permite ocupar toda la altura disponible
-          verticalAlign: "middle", // Alinea el contenido arriba (o 'middle', 'bottom')
+          padding: 1,
+          height: "100%",
+          verticalAlign: "middle",
         },
       }),
       render: (text, record) => (
@@ -226,14 +309,26 @@ function Aulasconsulta() {
 
   return (
     <>
-      <Table
-        className="no-borders-no-padding my-custom-table"
-        columns={columns}
-        dataSource={plansemana}
-        pagination={false}
-        rowKey={(record) => record.cveaula}
-        style={{ tableLayout: "fixed" }}
-      />
+      <DndContext
+        sensors={sensors}
+        modifiers={[restrictToVerticalAxis]}
+        onDragEnd={onDragEnd}
+      >
+        <SortableContext
+          items={plansemana.map((r) => r.cveaula)}
+          strategy={verticalListSortingStrategy}
+        >
+          <Table
+            components={token ? { body: { row: DraggableRow } } : undefined}
+            className="no-borders-no-padding my-custom-table"
+            columns={columns}
+            dataSource={plansemana}
+            pagination={false}
+            rowKey={(record) => record.cveaula}
+            style={{ tableLayout: "fixed" }}
+          />
+        </SortableContext>
+      </DndContext>
 
       <ModalEditarAula
         showModal={showModalEditarAula}

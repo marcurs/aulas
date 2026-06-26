@@ -1,22 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Input, InputNumber, Alert } from "antd";
+import { Modal, Input, InputNumber, Alert, Select } from "antd";
 import useApiREST from "../../Hooks/useApiREST";
 import configJSON from "../config.json";
 
+const { Option } = Select;
+
 export const ModalAltaAula = ({ showModal, setShowModal, onSuccess }) => {
-  const { post } = useApiREST();
+  const { get, post } = useApiREST();
 
   const initialForm = {
     cveaula: "",
-    cveedif: "",
+    cveedif: undefined,
     nombre: "",
     capaci: null,
-    pos: null,
   };
 
   const [form, setForm] = useState(initialForm);
+  const [edificios, setEdificios] = useState([]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    get(`${configJSON.API_URL}:${configJSON.PORT}/listedificios`)
+      .then((r) => r.json())
+      .then((data) => setEdificios(data))
+      .catch(() => setEdificios([]));
+  }, []);
 
   useEffect(() => {
     if (!showModal) return;
@@ -33,21 +42,19 @@ export const ModalAltaAula = ({ showModal, setShowModal, onSuccess }) => {
       const cveaula = (form.cveaula ?? "").trim();
       const nombre = (form.nombre ?? "").trim();
       const capaci = Number(form.capaci);
-      const pos = Number(form.pos);
 
-      if (!cveaula) { setError("La clave del aula (cveaula) es requerida."); return; }
-      if (!nombre)  { setError("El nombre del aula es requerido."); return; }
+      if (!cveaula) { setError("La clave del aula es requerida."); return; }
+      if (cveaula.length > 5) { setError("La clave del aula no puede exceder 5 caracteres."); return; }
+      if (!nombre) { setError("El nombre del aula es requerido."); return; }
       if (!Number.isFinite(capaci) || capaci < 0) { setError("La capacidad debe ser un número válido (>= 0)."); return; }
-      if (!Number.isFinite(pos) || pos < 0)       { setError("La posición debe ser un número válido (>= 0)."); return; }
 
       setSaving(true);
 
       const resp = await post(`${configJSON.API_URL}:${configJSON.PORT}/insertaula`, {
         cveaula,
-        cveedif: (form.cveedif ?? "").trim(),
+        cveedif: form.cveedif ?? "",
         nombre,
         capaci,
-        pos,
       });
 
       if (!resp.ok) {
@@ -95,17 +102,27 @@ export const ModalAltaAula = ({ showModal, setShowModal, onSuccess }) => {
       {field("Clave del aula",
         <Input
           value={form.cveaula}
+          maxLength={5}
+          showCount
           onChange={(e) => setForm({ ...form, cveaula: e.target.value })}
           placeholder="Ej. A1"
         />
       )}
 
       {field("Edificio",
-        <Input
+        <Select
+          style={{ width: "100%" }}
+          placeholder="Selecciona un edificio"
           value={form.cveedif}
-          onChange={(e) => setForm({ ...form, cveedif: e.target.value })}
-          placeholder="Ej. Edificio Norte"
-        />
+          onChange={(value) => setForm({ ...form, cveedif: value })}
+          allowClear
+        >
+          {edificios.map((e) => (
+            <Option key={e.cveedif} value={e.cveedif}>
+              {e.nombre}
+            </Option>
+          ))}
+        </Select>
       )}
 
       {field("Nombre",
@@ -123,16 +140,6 @@ export const ModalAltaAula = ({ showModal, setShowModal, onSuccess }) => {
           min={0}
           style={{ width: "100%" }}
           placeholder="Núm. de personas"
-        />
-      )}
-
-      {field("Posición (orden en tabla)",
-        <InputNumber
-          value={form.pos}
-          onChange={(v) => setForm({ ...form, pos: v })}
-          min={0}
-          style={{ width: "100%" }}
-          placeholder="Ej. 1, 2, 3…"
         />
       )}
     </Modal>

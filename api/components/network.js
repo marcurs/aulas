@@ -8,6 +8,13 @@ require("dotenv").config();
 
 const router = express.Router();
 
+router.get("/listedificios", function (req, res) {
+  controller
+    .getEdificios()
+    .then((list) => response.success(req, res, list, 200))
+    .catch((e) => response.error(req, res, "[NETWORK] " + e, 500, e));
+});
+
 router.get("/listaulas", function (req, res) {
   controller
     .getAulas()
@@ -68,6 +75,13 @@ router.post("/deletecurso", function (req, res) {
     .catch((e) => {
       response.error(req, res, "[NETWORK] " + e, 500, e);
     });
+});
+
+router.post("/updateaulasorden", function (req, res) {
+  controller
+    .updateAulasOrden(req.body)
+    .then((r) => response.success(req, res, r, 200))
+    .catch((e) => response.error(req, res, "[NETWORK] " + e, 500, e));
 });
 
 router.post("/insertaula", function (req, res) {

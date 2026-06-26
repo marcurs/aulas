@@ -218,6 +218,14 @@ function getAulas() {
   }
 }
 
+function getEdificios() {
+  try {
+    return store.getEdificios();
+  } catch (e) {
+    throw new Error(e);
+  }
+}
+
 async function getPlaneacionSemana(dia) {
   try {
     const fecha = parseISO(dia);
@@ -390,6 +398,17 @@ function deleteCursoSemana(cursos) {
   }
 }
 
+async function updateAulasOrden(payload) {
+  try {
+    if (!Array.isArray(payload) || payload.length === 0)
+      throw new Error("Se requiere un arreglo de { cveaula, pos }");
+    await store.updateAulasOrden(payload);
+    return "OK";
+  } catch (e) {
+    throw new Error(e);
+  }
+}
+
 async function insertAula(payload) {
   try {
     const cveaula = (payload?.cveaula ?? "").toString().trim();
@@ -397,15 +416,14 @@ async function insertAula(payload) {
     const nombre = (payload?.nombre ?? "").toString().trim();
     const capaci = Number(payload?.capaci);
     const disp = payload?.disp !== undefined ? Number(payload.disp) : 1;
-    const pos = Number(payload?.pos);
 
     if (!cveaula) throw new Error("cveaula es requerido");
+    if (cveaula.length > 5) throw new Error("cveaula no puede exceder 5 caracteres");
     if (!nombre) throw new Error("nombre es requerido");
     if (!Number.isFinite(capaci) || capaci < 0)
       throw new Error("capaci inválido");
-    if (!Number.isFinite(pos) || pos < 0) throw new Error("pos inválido");
 
-    await store.insertAula({ cveaula, cveedif, nombre, capaci, disp, pos });
+    await store.insertAula({ cveaula, cveedif, nombre, capaci, disp, pos: 100 });
     return "OK";
   } catch (e) {
     throw new Error(e);
@@ -433,11 +451,13 @@ async function updateAula(payload) {
 
 module.exports = {
   getAulas,
+  getEdificios,
   getPlaneacionSemana,
   insertCursoSemana,
   updateCursoSemana,
   deleteCursoSemana,
   updateObservacionSemana,
+  updateAulasOrden,
   insertAula,
   updateAula,
 };
