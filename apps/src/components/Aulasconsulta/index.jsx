@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Table, Button } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { ModalEditarAula } from "../Modals/ModalEditarAula";
+import { ModalAltaAula } from "../Modals/ModalAltaAula";
 import AppContext from "../../context/AppContext";
 import useApiREST from "../../Hooks/useApiREST";
 import PlandiarioAula from "../PlandiarioAula";
@@ -27,6 +28,7 @@ function Aulasconsulta() {
 
   const [showModalEditarAula, setShowModalEditarAula] = useState(false);
   const [aulaSeleccionada, setAulaSeleccionada] = useState(null);
+  const [showModalAltaAula, setShowModalAltaAula] = useState(false);
 
   useEffect(() => {
     if (refreshpage) {
@@ -52,7 +54,21 @@ function Aulasconsulta() {
 
   const columns = [
     {
-      title: "AULAS",
+      title: (
+        <div style={{ textAlign: "center" }}>
+          <div>AULAS</div>
+          {token ? (
+            <Button
+              size="small"
+              icon={<PlusOutlined />}
+              style={{ marginTop: 4 }}
+              onClick={() => setShowModalAltaAula(true)}
+            >
+              Nueva aula
+            </Button>
+          ) : null}
+        </div>
+      ),
       dataIndex: "nombre",
       key: "aula",
       width: 300,
@@ -223,6 +239,12 @@ function Aulasconsulta() {
         showModal={showModalEditarAula}
         setShowModal={setShowModalEditarAula}
         aula={aulaSeleccionada}
+        onSuccess={() => onRefreshPage(true)}
+      />
+
+      <ModalAltaAula
+        showModal={showModalAltaAula}
+        setShowModal={setShowModalAltaAula}
         onSuccess={() => onRefreshPage(true)}
       />
     </>

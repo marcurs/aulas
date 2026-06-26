@@ -219,6 +219,19 @@ async function updateObservacionBatch({
   return "OK";
 }
 
+function insertAula({ cveaula, cveedif, nombre, capaci, disp, pos }) {
+  return new Promise((resolve, reject) => {
+    const sql = `INSERT INTO aula (cveaula, cveedif, nombre, capaci, disp, pos) VALUES (?, ?, ?, ?, ?, ?)`;
+    db.query(sql, [cveaula, cveedif, nombre, capaci, disp, pos], (err) => {
+      if (err) {
+        console.error("Error al insertar aula:", err.message);
+        return reject({ error: "Error en la inserción", details: err.message });
+      }
+      resolve("OK");
+    });
+  });
+}
+
 // ✅ NUEVO: actualizar datos del aula (solo nombre y capacidad)
 function updateAula({ cveaula, nombre, capaci }) {
   return new Promise((resolve, reject) => {
@@ -244,5 +257,6 @@ module.exports = {
   deleteCursoSemana,
   marcarNoObservado,
   updateObservacionBatch,
+  insertAula,
   updateAula,
 };

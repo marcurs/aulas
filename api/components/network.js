@@ -70,6 +70,13 @@ router.post("/deletecurso", function (req, res) {
     });
 });
 
+router.post("/insertaula", function (req, res) {
+  controller
+    .insertAula(req.body)
+    .then((r) => response.success(req, res, r, 200))
+    .catch((e) => response.error(req, res, "[NETWORK] " + e, 500, e));
+});
+
 // ✅ NUEVO: actualizar datos del aula (solo nombre y capacidad)
 router.post("/updateaula", function (req, res) {
   controller

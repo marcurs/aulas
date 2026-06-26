@@ -390,6 +390,28 @@ function deleteCursoSemana(cursos) {
   }
 }
 
+async function insertAula(payload) {
+  try {
+    const cveaula = (payload?.cveaula ?? "").toString().trim();
+    const cveedif = (payload?.cveedif ?? "").toString().trim();
+    const nombre = (payload?.nombre ?? "").toString().trim();
+    const capaci = Number(payload?.capaci);
+    const disp = payload?.disp !== undefined ? Number(payload.disp) : 1;
+    const pos = Number(payload?.pos);
+
+    if (!cveaula) throw new Error("cveaula es requerido");
+    if (!nombre) throw new Error("nombre es requerido");
+    if (!Number.isFinite(capaci) || capaci < 0)
+      throw new Error("capaci inválido");
+    if (!Number.isFinite(pos) || pos < 0) throw new Error("pos inválido");
+
+    await store.insertAula({ cveaula, cveedif, nombre, capaci, disp, pos });
+    return "OK";
+  } catch (e) {
+    throw new Error(e);
+  }
+}
+
 // ✅ NUEVO: actualizar datos del aula (solo nombre y capacidad)
 async function updateAula(payload) {
   try {
@@ -416,5 +438,6 @@ module.exports = {
   updateCursoSemana,
   deleteCursoSemana,
   updateObservacionSemana,
+  insertAula,
   updateAula,
 };
