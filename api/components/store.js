@@ -225,7 +225,7 @@ function insertAula({ cveaula, cveedif, nombre, capaci, disp, pos }) {
     db.query(sql, [cveaula, cveedif, nombre, capaci, disp, pos], (err) => {
       if (err) {
         console.error("Error al insertar aula:", err.message);
-        return reject({ error: "Error en la inserción", details: err.message });
+        return reject(err.message);
       }
       resolve("OK");
     });
@@ -239,10 +239,7 @@ function updateAula({ cveaula, nombre, capaci }) {
     db.query(sqlUpdate, [nombre, capaci, cveaula], (err) => {
       if (err) {
         console.error("Error al actualizar aula:", err.message);
-        return reject({
-          error: "Error en la actualización",
-          details: err.message,
-        });
+        return reject(err.message);
       }
       resolve("OK");
     });
