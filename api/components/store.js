@@ -22,7 +22,7 @@ function getAulas() {
 function getPlaneacionSemana(dias) {
   if (!Array.isArray(dias) || dias.length === 0) {
     console.error(
-      "Error: 'dias' debe ser un arreglo con al menos una fecha válida."
+      "Error: 'dias' debe ser un arreglo con al menos una fecha válida.",
     );
     return Promise.reject({
       error: "Fechas inválidas",
@@ -101,7 +101,7 @@ function insertCursoSemana({ ...curso }) {
           });
         }
         resolve("OK");
-      }
+      },
     );
   });
 }
@@ -152,11 +152,11 @@ function updateCursoSemana({ ...curso }) {
   // Convertir fechas a la zona horaria de México antes de almacenar en MySQL
   const feciniUtc = format(
     toDate(fecini, { timeZone: "America/Mexico_City" }),
-    "yyyy-MM-dd HH:mm:ss"
+    "yyyy-MM-dd HH:mm:ss",
   );
   const fecfinUtc = format(
     toDate(fecfin, { timeZone: "America/Mexico_City" }),
-    "yyyy-MM-dd HH:mm:ss"
+    "yyyy-MM-dd HH:mm:ss",
   );
 
   return new Promise((resolve, reject) => {
@@ -176,7 +176,7 @@ function updateCursoSemana({ ...curso }) {
       (err, result) => {
         if (err) return reject(err);
         resolve("OK");
-      }
+      },
     );
   }).catch((err) => {
     throw new Error(err);
@@ -219,6 +219,23 @@ async function updateObservacionBatch({
   return "OK";
 }
 
+// ✅ NUEVO: actualizar datos del aula (solo nombre y capacidad)
+function updateAula({ cveaula, nombre, capaci }) {
+  return new Promise((resolve, reject) => {
+    const sqlUpdate = `UPDATE aula SET nombre = ?, capaci = ? WHERE cveaula = ?`;
+    db.query(sqlUpdate, [nombre, capaci, cveaula], (err) => {
+      if (err) {
+        console.error("Error al actualizar aula:", err.message);
+        return reject({
+          error: "Error en la actualización",
+          details: err.message,
+        });
+      }
+      resolve("OK");
+    });
+  });
+}
+
 module.exports = {
   getAulas,
   getPlaneacionSemana,
@@ -227,4 +244,5 @@ module.exports = {
   deleteCursoSemana,
   marcarNoObservado,
   updateObservacionBatch,
+  updateAula,
 };

@@ -70,6 +70,14 @@ router.post("/deletecurso", function (req, res) {
     });
 });
 
+// ✅ NUEVO: actualizar datos del aula (solo nombre y capacidad)
+router.post("/updateaula", function (req, res) {
+  controller
+    .updateAula(req.body)
+    .then((r) => response.success(req, res, r, 200))
+    .catch((e) => response.error(req, res, "[NETWORK] " + e, 500, e));
+});
+
 router.post("/login", function (req, res) {
   const user = req.body.username;
   const pwd = req.body.password;
@@ -81,7 +89,7 @@ router.post("/login", function (req, res) {
       res,
       "Username or Password required.",
       400,
-      "Username or Password required."
+      "Username or Password required.",
     );
   }
 
@@ -94,7 +102,7 @@ router.post("/login", function (req, res) {
       res,
       "Username or Password is Wrong",
       401,
-      "Username or Password is Wrong"
+      "Username or Password is Wrong",
     );
   } else {
     // generate token

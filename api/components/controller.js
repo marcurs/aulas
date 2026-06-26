@@ -30,25 +30,25 @@ async function getCursosSemana(result, dia) {
   const fecha = parseISO(dia); // Convertir la fecha a formato Date
   const primerdiasemana = format(
     startOfWeek(fecha, { weekStartsOn: 1 }),
-    "yyyy-MM-dd"
+    "yyyy-MM-dd",
   ); // Obtener el lunes de esa semana
 
   plansemana.LUNES.fecha = primerdiasemana;
   plansemana.MARTES.fecha = format(
     addDays(primerdiasemana, DIA_MARTES),
-    "yyyy-MM-dd"
+    "yyyy-MM-dd",
   );
   plansemana.MIERCOLES.fecha = format(
     addDays(primerdiasemana, DIA_MIERCOLES),
-    "yyyy-MM-dd"
+    "yyyy-MM-dd",
   );
   plansemana.JUEVES.fecha = format(
     addDays(primerdiasemana, DIA_JUEVES),
-    "yyyy-MM-dd"
+    "yyyy-MM-dd",
   );
   plansemana.VIERNES.fecha = format(
     addDays(primerdiasemana, DIA_VIERNES),
-    "yyyy-MM-dd"
+    "yyyy-MM-dd",
   );
 
   result.map((curso) => {
@@ -226,7 +226,7 @@ async function getPlaneacionSemana(dia) {
 
     const lunes = startOfWeek(fecha, { weekStartsOn: 1 });
     const diasSemana = Array.from({ length: 5 }, (_, i) =>
-      format(addDays(lunes, i), "yyyy-MM-dd")
+      format(addDays(lunes, i), "yyyy-MM-dd"),
     );
 
     const rows = await store.getPlaneacionSemana(diasSemana);
@@ -237,7 +237,7 @@ async function getPlaneacionSemana(dia) {
       .filter(
         (r) =>
           Number(r.observacion_estado) === 1 &&
-          String(r.fecini).split(" ")[0] < todayMx
+          String(r.fecini).split(" ")[0] < todayMx,
       )
       .map((r) => r.cvecurso);
 
@@ -302,11 +302,11 @@ async function insertCursoSemana(cursos) {
       // Convertir fechas a la zona horaria de México antes de almacenar en MySQL
       const feciniUtc = format(
         toDate(startDateTime, { timeZone: "America/Mexico_City" }),
-        "yyyy-MM-dd HH:mm:ss"
+        "yyyy-MM-dd HH:mm:ss",
       );
       const fecfinUtc = format(
         toDate(finishDateTime, { timeZone: "America/Mexico_City" }),
-        "yyyy-MM-dd HH:mm:ss"
+        "yyyy-MM-dd HH:mm:ss",
       );
 
       // Insertar el registro
@@ -352,7 +352,7 @@ async function updateObservacionSemana(payload) {
 
     if (estado === 2 && observador.length === 0) {
       throw new Error(
-        "Para estado OBSERVADO es obligatorio capturar observador_nombre"
+        "Para estado OBSERVADO es obligatorio capturar observador_nombre",
       );
     }
 
@@ -363,8 +363,8 @@ async function updateObservacionSemana(payload) {
       estado === 0
         ? null
         : comentarios && String(comentarios).trim().length
-        ? comentarios
-        : null;
+          ? comentarios
+          : null;
 
     await store.updateObservacionBatch({
       ids,
@@ -390,6 +390,25 @@ function deleteCursoSemana(cursos) {
   }
 }
 
+// ✅ NUEVO: actualizar datos del aula (solo nombre y capacidad)
+async function updateAula(payload) {
+  try {
+    const cveaula = (payload?.cveaula ?? "").toString().trim();
+    const nombre = (payload?.nombre ?? "").toString().trim();
+    const capaci = Number(payload?.capaci);
+
+    if (!cveaula) throw new Error("cveaula inválido");
+    if (!nombre) throw new Error("nombre es requerido");
+    if (!Number.isFinite(capaci) || capaci < 0)
+      throw new Error("capaci inválido");
+
+    await store.updateAula({ cveaula, nombre, capaci });
+    return "OK";
+  } catch (e) {
+    throw new Error(e);
+  }
+}
+
 module.exports = {
   getAulas,
   getPlaneacionSemana,
@@ -397,4 +416,5 @@ module.exports = {
   updateCursoSemana,
   deleteCursoSemana,
   updateObservacionSemana,
+  updateAula,
 };
