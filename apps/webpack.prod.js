@@ -7,8 +7,6 @@ const prodConfig = {
 };
 
 module.exports = merge(common, prodConfig); */
-//const webpack = require(`webpack`);
-
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -50,6 +48,10 @@ module.exports = {
 	},
 	resolve: {
 		extensions: ['.js', '.jsx'],
+		alias: {
+			[path.resolve(__dirname, 'src/components/config.json')]:
+				path.resolve(__dirname, 'src/components/config.prod.json'),
+		},
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
