@@ -13,3 +13,6 @@ apps/.env.local
 # Sistema
 .DS_Store
 *.log
+
+# Editor
+*.code-workspace
