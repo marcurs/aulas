@@ -326,6 +326,7 @@ function Aulasconsulta() {
             pagination={false}
             rowKey={(record) => record.cveaula}
             style={{ tableLayout: "fixed" }}
+            sticky
           />
         </SortableContext>
       </DndContext>
